@@ -278,6 +278,10 @@ class SdFile : public Print {
     int8_t readDir(dir_t* dir);
     static uint8_t remove(SdFile* dirFile, const char* fileName);
     uint8_t remove(void);
+
+    static uint8_t rename(SdFile* dirFile, const char* fileName, const char *newname); 
+    uint8_t rename(const char *newname); 
+
     /** Set the file's current position to zero. */
     void rewind(void) {
       curPosition_ = curCluster_ = 0;

@@ -953,6 +953,58 @@ uint8_t SdFile::remove(SdFile* dirFile, const char* fileName) {
   }
   return file.remove();
 }
+//------------------------------------------------------------------------------ 
+/** 
+   Rename a file. 
+   
+   The filename is changed. 
+   
+   \param[in] newname The new name of the file. 
+   
+   \note This function should not be used to delete the 8.3 version of a 
+   file that has a long name. For example if a file has the long name 
+   "New Text Document.txt" you should not delete the 8.3 name "NEWTEX~1.TXT". 
+   
+   \return The value one, true, is returned for success and 
+   the value zero, false, is returned for failure. 
+   Reasons for failure include the file read-only, is a directory, 
+   or an I/O error occurred. 
+ */ 
+uint8_t SdFile::rename(const char* newname) { 
+  if (!newname) return false; 
+  // cache directory entry 
+  dir_t* d = cacheDirEntry(SdVolume::CACHE_FOR_WRITE); 
+  if (!d) return false; 
+  // change name 
+  if (!make83Name(newname, d->name)) return false; 
+  // write entry to SD 
+  return SdVolume::cacheFlush(); 
+} 
+//------------------------------------------------------------------------------ 
+/** 
+   Rename a file. 
+   
+   The filename is changed. 
+   
+   \param[in] dirFile The directory that contains the file. 
+   \param[in] fileName The original name of the file to be renamed. 
+   \param[in] newname The new name of the file. 
+   
+   \note This function should not be used to delete the 8.3 version of a 
+   file that has a long name. For example if a file has the long name 
+   "New Text Document.txt" you should not delete the 8.3 name "NEWTEX~1.TXT". 
+   
+   \return The value one, true, is returned for success and 
+   the value zero, false, is returned for failure. 
+   Reasons for failure include the file is a directory, is read only, 
+   \a dirFile is not a directory, \a fileName is not found 
+   or an I/O error occurred. 
+ */ 
+uint8_t SdFile::rename(SdFile* dirFile, const char* fileName, const char* newname) { 
+  SdFile file; 
+  if (!file.open(dirFile, fileName, O_WRITE)) return false; 
+  return file.rename(newname); 
+}
 //------------------------------------------------------------------------------
 /** Remove a directory file.
 

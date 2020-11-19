@@ -318,6 +318,23 @@ namespace SDLib {
     return true;
   }
 
+  boolean callback_rename(SdFile& parentDir, const char *filePathComponent,
+                          boolean isLastComponent, void *newname) {
+    if (isLastComponent) {
+
+      // can't rename if destination name exist
+      SdFile child;
+      boolean exists = child.open(parentDir, (char *)newname, O_RDONLY);
+      if (exists) {
+        child.close();
+        return false;
+      }
+
+      return SdFile::rename(&parentDir, filePathComponent, (char *)newname);
+    }
+    return true;
+  }
+
   boolean callback_rmdir(SdFile& parentDir, const char *filePathComponent,
                          boolean isLastComponent, void * /* object */) {
     if (isLastComponent) {
@@ -580,6 +597,14 @@ namespace SDLib {
     return walkPath(filepath, root, callback_remove);
   }
 
+  boolean SDClass::rename(const char *filepath, const char *newname) {
+    File f = open(filepath);
+    if (f.isDirectory()) {
+      f.close();
+      return false;
+    }
+    return walkPath(filepath, root, callback_rename, (char *)newname);
+  }
 
   // allows you to recurse into a directory
   File File::openNextFile(uint8_t mode) {

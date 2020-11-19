@@ -101,6 +101,12 @@ namespace SDLib {
         return remove(filepath.c_str());
       }
 
+      // Rename the file.
+      boolean rename(const char *filepath, const char *newname);
+      boolean rename(const String &filepath, const String &newname) {
+        return rename(filepath.c_str(), newname.c_str());
+      }
+
       boolean rmdir(const char *filepath);
       boolean rmdir(const String &filepath) {
         return rmdir(filepath.c_str());
